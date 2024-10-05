@@ -1,4 +1,5 @@
 import pandas as pd
+import tabula
 
 
 # to add a reference to the 'DatabaseConnector' class here, you need to pass an instance
@@ -7,8 +8,10 @@ class DataExtractor:
 # i need to read the data from the RDS database
 
     # passing the databaseconnector as an instance
-    def __init__(self,db_connector):
+    # passing the linked_pdf as parameters
+    def __init__(self,db_connector,linked_pdf):
         self.db_connector = db_connector #db_connector = instance of databse connector
+        self.linked_pdf = linked_pdf
         # now read the data 
 
     # we'll use the connection engine to query the database
@@ -30,3 +33,14 @@ class DataExtractor:
 
         return df
     
+    def retrieve_pdf_data(self):
+        # We are using linked_pdf we dont pass it as an argument
+        #  we want to extract from all the pages
+        dfs = tabula.read_pdf(self.linked_pdf, pages="all" , multiple_tables = True)
+
+        if not dfs :
+            raise ValueError("No tables found in PDF")
+
+#  we are combining the total number of rows
+        return pd.concat(dfs,ignore_index=True)
+
